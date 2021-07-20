@@ -38,6 +38,8 @@ public interface DataTablesRepository<T, ID extends Serializable> extends MongoR
      */
     DataTablesOutput<T> findAll(DataTablesInput input, Criteria additionalCriteria, Criteria preFilteringCriteria);
 
+    DataTablesOutput<T> findAll(DataTablesInput input, Criteria preFilteringCriteria, Criteria... additionalCriteria);
+
     /**
      * Returns the filtered list for the given {@link DataTablesInput}.
      *

@@ -15,10 +15,10 @@ import static org.springframework.util.StringUtils.hasText;
 final class DataTablesCriteria {
 
     private final DataTablesInput input;
-    private final Criteria additionalCriteria;
+    private final Criteria[] additionalCriteria;
     private final Criteria preFilteringCriteria;
 
-    DataTablesCriteria(DataTablesInput input, Criteria additionalCriteria, Criteria preFilteringCriteria) {
+    DataTablesCriteria(DataTablesInput input, Criteria preFilteringCriteria, Criteria... additionalCriteria) {
         this.input = input;
         this.additionalCriteria = additionalCriteria;
         this.preFilteringCriteria = preFilteringCriteria;
@@ -37,7 +37,11 @@ final class DataTablesCriteria {
         input.getColumns().forEach(column -> this.addColumnCriteria(query, column));
 
         if (additionalCriteria != null) {
-            query.addCriteria(additionalCriteria);
+            for (Criteria criteria : additionalCriteria) {
+                if (criteria != null) {
+                    query.addCriteria(criteria);
+                }
+            }
         }
         if (preFilteringCriteria != null) {
             query.addCriteria(preFilteringCriteria);

@@ -33,17 +33,22 @@ final class DataTablesRepositoryImpl<T, ID extends Serializable> extends SimpleM
 
     @Override
     public DataTablesOutput<T> findAll(DataTablesInput input) {
-        return findAll(input, null, null, null);
+        return findAll(input, null, null, (Function<T, T>) null);
     }
 
     @Override
     public DataTablesOutput<T> findAll(DataTablesInput input, Criteria additionalCriteria) {
-        return findAll(input, additionalCriteria, null, null);
+        return findAll(input, additionalCriteria, null, (Function<T, T>) null);
     }
 
     @Override
     public DataTablesOutput<T> findAll(DataTablesInput input, Criteria additionalCriteria, Criteria preFilteringCriteria) {
         return findAll(input, additionalCriteria, preFilteringCriteria, null);
+    }
+
+    @Override
+    public DataTablesOutput<T> findAll(DataTablesInput input, Criteria preFilteringCriteria, Criteria... additionalCriteria) {
+        return findAll(input, preFilteringCriteria, null, additionalCriteria);
     }
 
     @Override
@@ -53,6 +58,10 @@ final class DataTablesRepositoryImpl<T, ID extends Serializable> extends SimpleM
 
     @Override
     public <R> DataTablesOutput<R> findAll(DataTablesInput input, Criteria additionalCriteria, Criteria preFilteringCriteria, Function<T, R> converter) {
+        return findAll(input, preFilteringCriteria, converter, additionalCriteria);
+    }
+
+    private <R> DataTablesOutput<R> findAll(DataTablesInput input, Criteria preFilteringCriteria, Function<T, R> converter, Criteria... additionalCriteria) {
         DataTablesOutput<R> output = new DataTablesOutput<>();
         output.setDraw(input.getDraw());
         if (input.getLength() == 0) {
@@ -66,7 +75,7 @@ final class DataTablesRepositoryImpl<T, ID extends Serializable> extends SimpleM
                 return output;
             }
 
-            DataTablesCriteria criteria = new DataTablesCriteria(input, additionalCriteria, preFilteringCriteria);
+            DataTablesCriteria criteria = new DataTablesCriteria(input, preFilteringCriteria, additionalCriteria);
 
             long recordsFiltered = mongoOperations.count(criteria.toCountQuery(), metadata.getCollectionName());
             output.setRecordsFiltered(recordsFiltered);
