@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.function.Function;
 
 @NoRepositoryBean
@@ -38,7 +39,7 @@ public interface DataTablesRepository<T, ID extends Serializable> extends MongoR
      */
     DataTablesOutput<T> findAll(DataTablesInput input, Criteria additionalCriteria, Criteria preFilteringCriteria);
 
-    DataTablesOutput<T> findAll(DataTablesInput input, Criteria preFilteringCriteria, Criteria... additionalCriteria);
+    DataTablesOutput<T> findAll(DataTablesInput input, Collection<Criteria> additionalCriteria, Collection<Criteria> preFilteringCriteria);
 
     /**
      * Returns the filtered list for the given {@link DataTablesInput}.

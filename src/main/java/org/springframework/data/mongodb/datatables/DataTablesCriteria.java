@@ -4,6 +4,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
+import java.util.Collection;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -15,10 +16,10 @@ import static org.springframework.util.StringUtils.hasText;
 final class DataTablesCriteria {
 
     private final DataTablesInput input;
-    private final Criteria[] additionalCriteria;
-    private final Criteria preFilteringCriteria;
+    private final Collection<Criteria> additionalCriteria;
+    private final Collection<Criteria> preFilteringCriteria;
 
-    DataTablesCriteria(DataTablesInput input, Criteria preFilteringCriteria, Criteria... additionalCriteria) {
+    DataTablesCriteria(DataTablesInput input, Collection<Criteria> preFilteringCriteria, Collection<Criteria> additionalCriteria) {
         this.input = input;
         this.additionalCriteria = additionalCriteria;
         this.preFilteringCriteria = preFilteringCriteria;
@@ -44,7 +45,11 @@ final class DataTablesCriteria {
             }
         }
         if (preFilteringCriteria != null) {
-            query.addCriteria(preFilteringCriteria);
+            for (Criteria criteria : preFilteringCriteria) {
+                if (criteria != null) {
+                    query.addCriteria(criteria);
+                }
+            }
         }
 
         return query;

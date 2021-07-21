@@ -3,15 +3,19 @@ package org.springframework.data.mongodb.datatables;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.data.mongodb.repository.support.SimpleMongoRepository;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 final class DataTablesRepositoryImpl<T, ID extends Serializable> extends SimpleMongoRepository<T, ID>
         implements DataTablesRepository<T, ID> {
@@ -33,12 +37,12 @@ final class DataTablesRepositoryImpl<T, ID extends Serializable> extends SimpleM
 
     @Override
     public DataTablesOutput<T> findAll(DataTablesInput input) {
-        return findAll(input, null, null, (Function<T, T>) null);
+        return findAll(input, emptyList(), emptyList(), null);
     }
 
     @Override
     public DataTablesOutput<T> findAll(DataTablesInput input, Criteria additionalCriteria) {
-        return findAll(input, additionalCriteria, null, (Function<T, T>) null);
+        return findAll(input, additionalCriteria, null, null);
     }
 
     @Override
@@ -47,21 +51,23 @@ final class DataTablesRepositoryImpl<T, ID extends Serializable> extends SimpleM
     }
 
     @Override
-    public DataTablesOutput<T> findAll(DataTablesInput input, Criteria preFilteringCriteria, Criteria... additionalCriteria) {
-        return findAll(input, preFilteringCriteria, null, additionalCriteria);
+    public DataTablesOutput<T> findAll(DataTablesInput input, Collection<Criteria> additionalCriteria, Collection<Criteria> preFilteringCriteria) {
+        return findAll(input, additionalCriteria, preFilteringCriteria, null);
     }
 
     @Override
     public <R> DataTablesOutput<R> findAll(DataTablesInput input, Function<T, R> converter) {
-        return findAll(input, null, null, converter);
+        return findAll(input, emptyList(), emptyList(), converter);
     }
 
     @Override
     public <R> DataTablesOutput<R> findAll(DataTablesInput input, Criteria additionalCriteria, Criteria preFilteringCriteria, Function<T, R> converter) {
-        return findAll(input, preFilteringCriteria, converter, additionalCriteria);
+        List<Criteria> additionalCriteriaList = additionalCriteria == null ? emptyList() : singletonList(additionalCriteria);
+        List<Criteria> preFilteringCriteriaList = preFilteringCriteria == null ? emptyList() : singletonList(preFilteringCriteria);
+        return findAll(input, additionalCriteriaList, preFilteringCriteriaList, converter);
     }
 
-    private <R> DataTablesOutput<R> findAll(DataTablesInput input, Criteria preFilteringCriteria, Function<T, R> converter, Criteria... additionalCriteria) {
+    private <R> DataTablesOutput<R> findAll(DataTablesInput input, Collection<Criteria> additionalCriteria, Collection<Criteria> preFilteringCriteria, Function<T, R> converter) {
         DataTablesOutput<R> output = new DataTablesOutput<>();
         output.setDraw(input.getDraw());
         if (input.getLength() == 0) {
@@ -93,11 +99,16 @@ final class DataTablesRepositoryImpl<T, ID extends Serializable> extends SimpleM
         return output;
     }
 
-    private long count(Criteria preFilteringCriteria) {
-        if (preFilteringCriteria == null) {
+    private long count(Collection<Criteria> preFilteringCriteria) {
+        if (preFilteringCriteria == null || preFilteringCriteria.isEmpty()) {
             return count();
         } else {
-            return mongoOperations.count(query(preFilteringCriteria), metadata.getCollectionName());
+            Query preFilteringQuery = new Query();
+            for (Criteria criteria : preFilteringCriteria) {
+                preFilteringQuery.addCriteria(criteria);
+            }
+
+            return mongoOperations.count(preFilteringQuery, metadata.getCollectionName());
         }
     }
 

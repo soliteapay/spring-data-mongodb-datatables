@@ -7,6 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -223,4 +229,31 @@ public class ProductRepositoryTest {
         assertThat(output.getData()).containsSequence(Product.PRODUCT1, Product.PRODUCT2, Product.PRODUCT3);
     }
 
+    @Test
+    public void multipleCriteria() {
+        DataTablesInput input = getDefaultInput();
+        input.setSearch(new DataTablesInput.Search("product3", false));
+
+        DataTablesOutput<Product> output = productRepository.findAll(input);
+        assertThat(output.getError()).isNull();
+        assertThat(output.getData()).containsOnly(Product.PRODUCT3);
+
+        Criteria idCriteria = Criteria.where("_id").is(3);
+        Criteria labelCriteria = Criteria.where("label").ne("ahoj");
+        Criteria greetingCriteria = Criteria.where("greeting").exists(false);
+
+        // this doesn't work - duplicate 'null' key
+        output = productRepository.findAll(input, new Criteria().andOperator(idCriteria, labelCriteria, greetingCriteria));
+        assertThat(output.getError()).isNotNull();
+        assertThat(output.getData()).isEmpty();
+
+        // this works
+        output = productRepository.findAll(input, null, Arrays.asList(idCriteria, labelCriteria, greetingCriteria));
+        assertThat(output.getError()).isNull();
+        assertThat(output.getData()).containsOnly(Product.PRODUCT3);
+
+        output = productRepository.findAll(input, Arrays.asList(idCriteria, labelCriteria, greetingCriteria), null);
+        assertThat(output.getError()).isNull();
+        assertThat(output.getData()).containsOnly(Product.PRODUCT3);
+    }
 }
