@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.repository.support.SimpleMongoRepository
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 import static java.util.Collections.emptyList;
@@ -99,8 +100,8 @@ final class DataTablesRepositoryImpl<T, ID extends Serializable> extends SimpleM
     }
 
     private long count(Collection<Criteria> preFilteringCriteria) {
-        if (preFilteringCriteria == null || preFilteringCriteria.isEmpty()) {
-            return count();
+        if (preFilteringCriteria == null || preFilteringCriteria.isEmpty() || preFilteringCriteria.stream().allMatch(Objects::isNull)) {
+            return mongoOperations.estimatedCount(metadata.getCollectionName());
         } else {
             Query preFilteringQuery = new Query();
             for (Criteria criteria : preFilteringCriteria) {

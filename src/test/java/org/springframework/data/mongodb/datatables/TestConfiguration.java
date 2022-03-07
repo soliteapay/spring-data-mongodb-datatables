@@ -1,6 +1,7 @@
 package org.springframework.data.mongodb.datatables;
 
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -12,7 +13,7 @@ public class TestConfiguration {
 
     @Bean
     public MongoClient mongoClient() {
-        return new MongoClient("localhost");
+        return MongoClients.create();
     }
 
     @Bean
