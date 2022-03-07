@@ -107,7 +107,13 @@ public class ProductRepositoryTest {
         input.setSearch(new DataTablesInput.Search(" PROduct2  ", false));
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
+        assertThat(output.getData()).isEmpty();
+
+        input.setSearch(new DataTablesInput.Search(" product2  ", false));
+
+        output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT2);
+
     }
 
     @Test
@@ -117,6 +123,12 @@ public class ProductRepositoryTest {
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT2);
+
+        input.setSearch(new DataTablesInput.Search("^P\\w+ucT2$", true));
+
+        output = productRepository.findAll(input);
+        assertThat(output.getData()).containsOnly(Product.PRODUCT2);
+
     }
 
     @Test
@@ -126,6 +138,12 @@ public class ProductRepositoryTest {
                 column.setSearch(new DataTablesInput.Search(" PROduct3  ", false)));
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
+        assertThat(output.getData()).isEmpty();
+
+        input.getColumn("label").ifPresent(column ->
+                column.setSearch(new DataTablesInput.Search(" product3  ", false)));
+
+        output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT3);
     }
 
@@ -137,6 +155,13 @@ public class ProductRepositoryTest {
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT3);
+
+        input.getColumn("label").ifPresent(column ->
+                column.setSearch(new DataTablesInput.Search("^P\\w+Uct3$", true)));
+
+        output = productRepository.findAll(input);
+        assertThat(output.getData()).containsOnly(Product.PRODUCT3);
+
     }
 
     @Test
