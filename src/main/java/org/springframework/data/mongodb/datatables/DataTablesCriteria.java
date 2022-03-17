@@ -13,7 +13,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.util.ObjectUtils.isEmpty;
 import static org.springframework.util.StringUtils.hasText;
 
-final class DataTablesCriteria {
+public final class DataTablesCriteria {
 
     private final DataTablesInput input;
     private final Collection<Criteria> additionalCriteria;
@@ -55,13 +55,17 @@ final class DataTablesCriteria {
         return query;
     }
 
-    private void addGlobalCriteria(Query query, DataTablesInput input) {
-        if (!hasText(input.getSearch().getValue())) return;
+    public static Criteria[] getGlobalCriteria(DataTablesInput input) {
+        if (!hasText(input.getSearch().getValue())) return new Criteria[]{};
 
-        Criteria[] criteriaArray = input.getColumns().stream()
+        return input.getColumns().stream()
                 .filter(DataTablesInput.Column::isSearchable)
                 .map(column -> createCriteria(column, input.getSearch()))
                 .toArray(Criteria[]::new);
+    }
+
+    private void addGlobalCriteria(Query query, DataTablesInput input) {
+        Criteria[] criteriaArray = getGlobalCriteria(input);
 
         if (criteriaArray.length == 1) {
             query.addCriteria(criteriaArray[0]);
@@ -70,13 +74,21 @@ final class DataTablesCriteria {
         }
     }
 
-    private void addColumnCriteria(Query query, DataTablesInput.Column column) {
+    public static Criteria getColumnCriteria(DataTablesInput.Column column) {
         if (column.isSearchable() && hasText(column.getSearch().getValue())) {
-            query.addCriteria(createColumnCriteria(column));
+            return createColumnCriteria(column);
+        }
+        return null;
+    }
+
+    private void addColumnCriteria(Query query, DataTablesInput.Column column) {
+        Criteria columnCriteria = getColumnCriteria(column);
+        if (columnCriteria != null) {
+            query.addCriteria(columnCriteria);
         }
     }
 
-    private Criteria createColumnCriteria(DataTablesInput.Column column) {
+    private static Criteria createColumnCriteria(DataTablesInput.Column column) {
         String searchValue = column.getSearch().getValue();
         if ("true".equalsIgnoreCase(searchValue) || "false".equalsIgnoreCase(searchValue)) {
             return where(column.getData()).is(Boolean.valueOf(searchValue));
@@ -85,7 +97,7 @@ final class DataTablesCriteria {
         }
     }
 
-    private Criteria createCriteria(DataTablesInput.Column column, DataTablesInput.Search search) {
+    private static Criteria createCriteria(DataTablesInput.Column column, DataTablesInput.Search search) {
         String searchValue = search.getValue();
         if (search.isRegex()) {
             return where(column.getData()).regex(searchValue, "i");
