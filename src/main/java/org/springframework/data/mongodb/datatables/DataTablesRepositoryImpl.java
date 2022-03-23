@@ -81,15 +81,26 @@ final class DataTablesRepositoryImpl<T, ID extends Serializable> extends SimpleM
                 return output;
             }
 
-            DataTablesCriteria criteria = new DataTablesCriteria(input, preFilteringCriteria, additionalCriteria);
-
-            long recordsFiltered = mongoOperations.count(criteria.toCountQuery(), metadata.getCollectionName());
-            output.setRecordsFiltered(recordsFiltered);
-            if (recordsFiltered == 0) {
-                return output;
+            int length = input.getLength();
+            if (length > -1) {
+                input.setLength(length + 1);
             }
 
+            DataTablesCriteria criteria = new DataTablesCriteria(input, preFilteringCriteria, additionalCriteria);
+
             List<T> data = mongoOperations.find(criteria.toQuery(), metadata.getJavaType(), metadata.getCollectionName());
+
+            if (length > -1) {
+                if (data.size() == length + 1) {
+                    output.setLastPage(false);
+                    data.remove(length);
+                } else {
+                    output.setLastPage(true);
+                }
+            } else {
+                output.setLastPage(true);
+            }
+
             output.setData(converter == null ? (List<R>) data : data.stream().map(converter).collect(toList()));
 
         } catch (Exception e) {

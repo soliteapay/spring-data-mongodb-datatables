@@ -7,12 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -63,7 +59,7 @@ public class ProductRepositoryTest {
         DataTablesOutput<Product> output = productRepository.findAll(getDefaultInput());
         assertThat(output.getDraw()).isEqualTo(1);
         assertThat(output.getError()).isNull();
-        assertThat(output.getRecordsFiltered()).isEqualTo(3);
+        assertThat(output.isLastPage()).isTrue();
         assertThat(output.getRecordsTotal()).isEqualTo(3);
         assertThat(output.getData()).containsOnly(Product.PRODUCT1, Product.PRODUCT2, Product.PRODUCT3);
     }
@@ -78,7 +74,7 @@ public class ProductRepositoryTest {
         DataTablesOutput<Product> output = productRepository.findAll(input);
         assertThat(output.getDraw()).isEqualTo(2);
         assertThat(output.getError()).isNull();
-        assertThat(output.getRecordsFiltered()).isEqualTo(3);
+        assertThat(output.isLastPage()).isFalse();
         assertThat(output.getRecordsTotal()).isEqualTo(3);
         assertThat(output.getData()).containsOnly(Product.PRODUCT2);
     }
@@ -180,7 +176,7 @@ public class ProductRepositoryTest {
         input.setLength(0);
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
-        assertThat(output.getRecordsFiltered()).isEqualTo(0);
+        assertThat(output.isLastPage()).isFalse();
         assertThat(output.getData()).hasSize(0);
     }
 
@@ -190,7 +186,7 @@ public class ProductRepositoryTest {
         input.setLength(-1);
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
-        assertThat(output.getRecordsFiltered()).isEqualTo(3);
+        assertThat(output.isLastPage()).isTrue();
         assertThat(output.getRecordsTotal()).isEqualTo(3);
     }
 
@@ -216,7 +212,7 @@ public class ProductRepositoryTest {
         Criteria criteria = where("label").in("product1", "product2");
 
         DataTablesOutput<Product> output = productRepository.findAll(getDefaultInput(), criteria);
-        assertThat(output.getRecordsFiltered()).isEqualTo(2);
+        assertThat(output.isLastPage()).isTrue();
         assertThat(output.getRecordsTotal()).isEqualTo(3);
         assertThat(output.getData()).containsOnly(Product.PRODUCT1, Product.PRODUCT2);
     }
@@ -226,7 +222,7 @@ public class ProductRepositoryTest {
         Criteria criteria = where("label").in("product2", "product3");
 
         DataTablesOutput<Product> output = productRepository.findAll(getDefaultInput(), null, criteria);
-        assertThat(output.getRecordsFiltered()).isEqualTo(2);
+        assertThat(output.isLastPage()).isTrue();
         assertThat(output.getRecordsTotal()).isEqualTo(2);
         assertThat(output.getData()).containsOnly(Product.PRODUCT2, Product.PRODUCT3);
     }

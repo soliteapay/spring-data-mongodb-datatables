@@ -25,11 +25,10 @@ public final class DataTablesOutput<T> {
     private long recordsTotal = 0L;
 
     /**
-     * Total records, after filtering (i.e. the total number of records after filtering has been
-     * applied - not just the number of records being returned for this page of data).
+     * A boolean value expressing whether the current page is the last one (i.e. there are no further records after the current selection)
      */
     @JsonView(View.class)
-    private long recordsFiltered = 0L;
+    private boolean lastPage;
 
     /**
      * The data to be displayed in the table. This is an array of data source objects, one for each
