@@ -5,7 +5,7 @@
 
     <groupId>com.soliteapay</groupId>
     <artifactId>spring-data-mongodb-datatables</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 
     <name>Spring Data MongoDB for DataTables</name>
     <description>Spring Data MongoDB extension to work with the great jQuery plug-in DataTables (http://datatables.net/)</description>
@@ -157,11 +157,6 @@
                     <goals>deploy</goals>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.4</version>
-            </plugin>
             <!-- Nexus Staging Maven Plugin for Deployment and Release into Sonatype
                 OSSRH -->
             <plugin>
@@ -172,29 +167,23 @@
                 <configuration>
                     <serverId>ossrh</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <skipStaging>true</skipStaging>
                 </configuration>
             </plugin>
         </plugins>
     </build>
 
-    <!-- Deploy snapshots to the Sonatype OSSRH (OSS Repository Hosting) -->
     <distributionManagement>
-        <downloadUrl>https://github.com/arey/spring-batch-toolkit</downloadUrl>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>smartsoftware-thirdparty</id>
+            <url>https://maven.smartpos.cz/content/repositories/thirdparty/</url>
         </repository>
     </distributionManagement>
 
     <profiles>
         <profile>
             <!-- Specific profile for release or artifact deployment -->
-            <!-- Sources et javadoc are packaged -->
+            <!-- Sources are packaged -->
             <id>release</id>
             <build>
                 <plugins>
@@ -206,34 +195,6 @@
                                 <id>attach-sources</id>
                                 <goals>
                                     <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <!-- GPG Signed Artefacts required by Maven Central -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
                                 </goals>
                             </execution>
                         </executions>
