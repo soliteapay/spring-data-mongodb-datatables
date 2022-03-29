@@ -59,8 +59,8 @@ public class ProductRepositoryTest {
         DataTablesOutput<Product> output = productRepository.findAll(getDefaultInput());
         assertThat(output.getDraw()).isEqualTo(1);
         assertThat(output.getError()).isNull();
-        assertThat(output.isLastPage()).isTrue();
-        assertThat(output.getRecordsTotal()).isEqualTo(3);
+        assertThat(output.getHasNext()).isFalse();
+        assertThat(output.getRecordsTotal()).isEqualTo(3L);
         assertThat(output.getData()).containsOnly(Product.PRODUCT1, Product.PRODUCT2, Product.PRODUCT3);
     }
 
@@ -74,8 +74,8 @@ public class ProductRepositoryTest {
         DataTablesOutput<Product> output = productRepository.findAll(input);
         assertThat(output.getDraw()).isEqualTo(2);
         assertThat(output.getError()).isNull();
-        assertThat(output.isLastPage()).isFalse();
-        assertThat(output.getRecordsTotal()).isEqualTo(3);
+        assertThat(output.getHasNext()).isTrue();
+        assertThat(output.getRecordsTotal()).isEqualTo(3L);
         assertThat(output.getData()).containsOnly(Product.PRODUCT2);
     }
 
@@ -176,7 +176,7 @@ public class ProductRepositoryTest {
         input.setLength(0);
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
-        assertThat(output.isLastPage()).isFalse();
+        assertThat(output.getHasNext()).isFalse();
         assertThat(output.getData()).hasSize(0);
     }
 
@@ -186,8 +186,8 @@ public class ProductRepositoryTest {
         input.setLength(-1);
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
-        assertThat(output.isLastPage()).isTrue();
-        assertThat(output.getRecordsTotal()).isEqualTo(3);
+        assertThat(output.getHasNext()).isFalse();
+        assertThat(output.getRecordsTotal()).isEqualTo(3L);
     }
 
     @Test
@@ -212,8 +212,8 @@ public class ProductRepositoryTest {
         Criteria criteria = where("label").in("product1", "product2");
 
         DataTablesOutput<Product> output = productRepository.findAll(getDefaultInput(), criteria);
-        assertThat(output.isLastPage()).isTrue();
-        assertThat(output.getRecordsTotal()).isEqualTo(3);
+        assertThat(output.getHasNext()).isFalse();
+        assertThat(output.getRecordsTotal()).isEqualTo(3L);
         assertThat(output.getData()).containsOnly(Product.PRODUCT1, Product.PRODUCT2);
     }
 
@@ -222,8 +222,8 @@ public class ProductRepositoryTest {
         Criteria criteria = where("label").in("product2", "product3");
 
         DataTablesOutput<Product> output = productRepository.findAll(getDefaultInput(), null, criteria);
-        assertThat(output.isLastPage()).isTrue();
-        assertThat(output.getRecordsTotal()).isEqualTo(2);
+        assertThat(output.getHasNext()).isFalse();
+        assertThat(output.getRecordsTotal()).isEqualTo(2L);
         assertThat(output.getData()).containsOnly(Product.PRODUCT2, Product.PRODUCT3);
     }
 
@@ -276,5 +276,19 @@ public class ProductRepositoryTest {
         output = productRepository.findAll(input, Arrays.asList(idCriteria, labelCriteria, greetingCriteria), null);
         assertThat(output.getError()).isNull();
         assertThat(output.getData()).containsOnly(Product.PRODUCT3);
+    }
+
+    @Test
+    public void countingRecordsDisabled() {
+        DataTablesInput input = getDefaultInput();
+        input.setCountingRecordsDisabled(true);
+        DataTablesOutput<Product> output = productRepository.findAll(input);
+        assertThat(output.getError()).isNull();
+        assertThat(output.getHasNext()).isFalse();
+
+        assertThat(output.getRecordsTotal()).isNull();
+        assertThat(output.getRecordsFiltered()).isNull();
+
+        assertThat(output.getData()).containsOnly(Product.PRODUCT1, Product.PRODUCT2, Product.PRODUCT3);
     }
 }

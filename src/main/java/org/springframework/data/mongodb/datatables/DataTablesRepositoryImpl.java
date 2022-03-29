@@ -75,30 +75,37 @@ final class DataTablesRepositoryImpl<T, ID extends Serializable> extends SimpleM
         }
 
         try {
-            long recordsTotal = count(preFilteringCriteria);
-            output.setRecordsTotal(recordsTotal);
-            if (recordsTotal == 0) {
-                return output;
-            }
-
-            int length = input.getLength();
-            if (length > -1) {
-                input.setLength(length + 1);
+            int inputLength = input.getLength();
+            if (inputLength > -1) {
+                input.setLength(inputLength + 1);
             }
 
             DataTablesCriteria criteria = new DataTablesCriteria(input, preFilteringCriteria, additionalCriteria);
 
+            if (!input.isCountingRecordsDisabled()) {
+                long recordsTotal = count(preFilteringCriteria);
+                output.setRecordsTotal(recordsTotal);
+                if (recordsTotal == 0) {
+                    return output;
+                }
+                long recordsFiltered = mongoOperations.count(criteria.toCountQuery(), metadata.getCollectionName());
+                output.setRecordsFiltered(recordsFiltered);
+                if (recordsFiltered == 0) {
+                    return output;
+                }
+            }
+
             List<T> data = mongoOperations.find(criteria.toQuery(), metadata.getJavaType(), metadata.getCollectionName());
 
-            if (length > -1) {
-                if (data.size() == length + 1) {
-                    output.setLastPage(false);
-                    data.remove(length);
+            if (inputLength > -1) {
+                if (data.size() == inputLength + 1) {
+                    output.setHasNext(true);
+                    data.remove(inputLength);
                 } else {
-                    output.setLastPage(true);
+                    output.setHasNext(false);
                 }
             } else {
-                output.setLastPage(true);
+                output.setHasNext(false);
             }
 
             output.setData(converter == null ? (List<R>) data : data.stream().map(converter).collect(toList()));

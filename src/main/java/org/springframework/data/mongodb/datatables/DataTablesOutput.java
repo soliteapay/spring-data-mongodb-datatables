@@ -1,5 +1,7 @@
 package org.springframework.data.mongodb.datatables;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 
@@ -7,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Data
+@JsonInclude(value = Include.NON_NULL)
 public final class DataTablesOutput<T> {
 
     /**
@@ -22,13 +25,24 @@ public final class DataTablesOutput<T> {
      * Total records, before filtering (i.e. the total number of records in the database)
      */
     @JsonView(View.class)
-    private long recordsTotal = 0L;
+    private Long recordsTotal;
 
     /**
-     * A boolean value expressing whether the current page is the last one (i.e. there are no further records after the current selection)
+     * Total records, after filtering (i.e. the total number of records after filtering has been
+     * applied - not just the number of records being returned for this page of data).
      */
     @JsonView(View.class)
-    private boolean lastPage;
+    private Long recordsFiltered;
+
+    /**
+     * A boolean value expressing whether there are more records after the current selection (i.e. the current page is not the last one)
+     */
+    @JsonView(View.class)
+    private boolean hasNext;
+
+    public boolean getHasNext() {
+        return hasNext;
+    }
 
     /**
      * The data to be displayed in the table. This is an array of data source objects, one for each

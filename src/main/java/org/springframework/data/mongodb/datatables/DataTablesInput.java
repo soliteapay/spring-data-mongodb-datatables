@@ -58,6 +58,11 @@ public class DataTablesInput {
     @NotEmpty
     private List<Column> columns;
 
+    /**
+     * If true, the attributes {@link DataTablesOutput.recordsTotal} and {@link DataTablesOutput.recordsFiltered} won't be present in the response
+     */
+    private boolean countingRecordsDisabled = false;
+
     public Optional<Column> getColumn(String columnName) {
         return this.columns.stream()
                 .filter(column -> columnName.equals(column.getData()))
