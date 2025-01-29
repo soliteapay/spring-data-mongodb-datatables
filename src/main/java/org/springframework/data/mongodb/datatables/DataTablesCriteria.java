@@ -75,7 +75,7 @@ public final class DataTablesCriteria {
     }
 
     public static Criteria getColumnCriteria(DataTablesInput.Column column) {
-        if (column.isSearchable() && hasText(column.getSearch().getValue())) {
+        if ((column.isSearchable() || column.isSearchableIndependently()) && hasText(column.getSearch().getValue())) {
             return createColumnCriteria(column);
         }
         return null;

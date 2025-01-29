@@ -95,6 +95,12 @@ public class DataTablesInput {
         private boolean searchable;
 
         /**
+         * If set to {@code true}, {@link #search} will be applied even if {@link #searchable} is {@code false}.
+         * Used for columns that are excluded from global search ({@link DataTablesInput#search}) but that can still be filtered separately.
+         */
+        private boolean searchableIndependently;
+
+        /**
          * Flag to indicate if this column is orderable (true) or not (false).
          *
          * @see <a href="http://datatables.net/reference/option/columns.orderable">http://datatables.net/reference/option/columns.orderable</a>

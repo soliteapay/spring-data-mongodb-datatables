@@ -240,6 +240,19 @@ public class ProductRepositoryTest {
     }
 
     @Test
+    public void columnSearchableIndependently() {
+        DataTablesInput input = getDefaultInput();
+        input.getColumn("label").ifPresent(column -> {
+            column.setSearch(new DataTablesInput.Search(" product3  ", false));
+            column.setSearchable(false);
+            column.setSearchableIndependently(true);
+        });
+
+        DataTablesOutput<Product> output = productRepository.findAll(input);
+        assertThat(output.getData()).containsOnly(Product.PRODUCT3);
+    }
+
+    @Test
     public void columnNotOrderable() {
         DataTablesInput input = getDefaultInput();
         input.setOrder(singletonList(new DataTablesInput.Order(3, DataTablesInput.Order.Direction.asc)));
