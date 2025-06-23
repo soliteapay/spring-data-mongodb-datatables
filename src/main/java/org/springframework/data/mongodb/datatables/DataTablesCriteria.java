@@ -101,6 +101,8 @@ public final class DataTablesCriteria {
         String searchValue = search.getValue();
         if (search.isRegex()) {
             return where(column.getData()).regex(searchValue, "i");
+        } else if (search.isExactMatch()) {
+            return where(column.getData()).is(searchValue);
         } else {
             return where(column.getData()).regex("^"+searchValue.trim());   // can use index!
         }

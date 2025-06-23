@@ -128,6 +128,21 @@ public class ProductRepositoryTest {
     }
 
     @Test
+    public void globalFilterExactMatch() {
+        DataTablesInput input = getDefaultInput();
+        input.setSearch(new DataTablesInput.Search("product", false, true));
+
+        DataTablesOutput<Product> output = productRepository.findAll(input);
+        assertThat(output.getData()).isEmpty();
+
+        input.setSearch(new DataTablesInput.Search("product2", false, true));
+
+        output = productRepository.findAll(input);
+        assertThat(output.getData()).containsOnly(Product.PRODUCT2);
+
+    }
+
+    @Test
     public void columnFilter() {
         DataTablesInput input = getDefaultInput();
         input.getColumn("label").ifPresent(column ->
@@ -158,6 +173,22 @@ public class ProductRepositoryTest {
         output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT3);
 
+    }
+
+    @Test
+    public void columnFilterExactMatch() {
+        DataTablesInput input = getDefaultInput();
+        input.getColumn("label").ifPresent(column ->
+          column.setSearch(new DataTablesInput.Search("product", false, true)));
+
+        DataTablesOutput<Product> output = productRepository.findAll(input);
+        assertThat(output.getData()).isEmpty();
+
+        input.getColumn("label").ifPresent(column ->
+          column.setSearch(new DataTablesInput.Search("product3", false, true)));
+
+        output = productRepository.findAll(input);
+        assertThat(output.getData()).containsOnly(Product.PRODUCT3);
     }
 
     @Test

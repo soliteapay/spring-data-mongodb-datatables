@@ -1,5 +1,6 @@
 package org.springframework.data.mongodb.datatables;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
@@ -116,6 +117,7 @@ public class DataTablesInput {
     }
 
     @Data
+    @AllArgsConstructor
     public static final class Search {
 
         /**
@@ -131,6 +133,13 @@ public class DataTablesInput {
          * and at the discretion of your script.
          */
         private boolean regex;
+
+        /**
+         * Set to {@code true} to use an equals operator when searching for {@link #value}.
+         * Otherwise, a "prefix" regex that starts with a caret (^) will be used, e.g. {@code ^value}.
+         * Ignored if {@link #regex} is set to {@code true}.
+         */
+        private boolean exactMatch = false;
 
         public Search(@NotNull String value, boolean regex) {
             this.value = value;
