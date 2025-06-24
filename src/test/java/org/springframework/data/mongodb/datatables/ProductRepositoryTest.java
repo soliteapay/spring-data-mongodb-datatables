@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.datatables.DataTablesInput.Search.SearchMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -41,7 +42,7 @@ public class ProductRepositoryTest {
                 createColumn("characteristics.value", true, true),
                 createColumn("unknown", false, false)
         ));
-        input.setSearch(new DataTablesInput.Search("", false));
+        input.setSearch(new DataTablesInput.Search(""));
         return input;
     }
 
@@ -50,7 +51,7 @@ public class ProductRepositoryTest {
         column.setData(columnName);
         column.setOrderable(orderable);
         column.setSearchable(searchable);
-        column.setSearch(new DataTablesInput.Search("", true));
+        column.setSearch(new DataTablesInput.Search("", SearchMode.REGEX));
         return column;
     }
 
@@ -100,12 +101,12 @@ public class ProductRepositoryTest {
     @Test
     public void globalFilter() {
         DataTablesInput input = getDefaultInput();
-        input.setSearch(new DataTablesInput.Search(" PROduct2  ", false));
+        input.setSearch(new DataTablesInput.Search(" PROduct2  "));
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
         assertThat(output.getData()).isEmpty();
 
-        input.setSearch(new DataTablesInput.Search(" product2  ", false));
+        input.setSearch(new DataTablesInput.Search(" product2  "));
 
         output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT2);
@@ -115,12 +116,12 @@ public class ProductRepositoryTest {
     @Test
     public void globalFilterRegex() {
         DataTablesInput input = getDefaultInput();
-        input.setSearch(new DataTablesInput.Search("^p\\w+uct2$", true));
+        input.setSearch(new DataTablesInput.Search("^p\\w+uct2$", SearchMode.REGEX));
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT2);
 
-        input.setSearch(new DataTablesInput.Search("^P\\w+ucT2$", true));
+        input.setSearch(new DataTablesInput.Search("^P\\w+ucT2$", SearchMode.REGEX));
 
         output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT2);
@@ -130,12 +131,12 @@ public class ProductRepositoryTest {
     @Test
     public void globalFilterExactMatch() {
         DataTablesInput input = getDefaultInput();
-        input.setSearch(new DataTablesInput.Search("product", false, true));
+        input.setSearch(new DataTablesInput.Search("product", SearchMode.EXACT_MATCH));
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
         assertThat(output.getData()).isEmpty();
 
-        input.setSearch(new DataTablesInput.Search("product2", false, true));
+        input.setSearch(new DataTablesInput.Search("product2", SearchMode.EXACT_MATCH));
 
         output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT2);
@@ -146,13 +147,13 @@ public class ProductRepositoryTest {
     public void columnFilter() {
         DataTablesInput input = getDefaultInput();
         input.getColumn("label").ifPresent(column ->
-                column.setSearch(new DataTablesInput.Search(" PROduct3  ", false)));
+                column.setSearch(new DataTablesInput.Search(" PROduct3  ")));
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
         assertThat(output.getData()).isEmpty();
 
         input.getColumn("label").ifPresent(column ->
-                column.setSearch(new DataTablesInput.Search(" product3  ", false)));
+                column.setSearch(new DataTablesInput.Search(" product3  ")));
 
         output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT3);
@@ -162,13 +163,13 @@ public class ProductRepositoryTest {
     public void columnFilterRegex() {
         DataTablesInput input = getDefaultInput();
         input.getColumn("label").ifPresent(column ->
-                column.setSearch(new DataTablesInput.Search("^p\\w+uct3$", true)));
+                column.setSearch(new DataTablesInput.Search("^p\\w+uct3$", SearchMode.REGEX)));
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT3);
 
         input.getColumn("label").ifPresent(column ->
-                column.setSearch(new DataTablesInput.Search("^P\\w+Uct3$", true)));
+                column.setSearch(new DataTablesInput.Search("^P\\w+Uct3$", SearchMode.REGEX)));
 
         output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT3);
@@ -179,13 +180,13 @@ public class ProductRepositoryTest {
     public void columnFilterExactMatch() {
         DataTablesInput input = getDefaultInput();
         input.getColumn("label").ifPresent(column ->
-          column.setSearch(new DataTablesInput.Search("product", false, true)));
+          column.setSearch(new DataTablesInput.Search("product", SearchMode.EXACT_MATCH)));
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
         assertThat(output.getData()).isEmpty();
 
         input.getColumn("label").ifPresent(column ->
-          column.setSearch(new DataTablesInput.Search("product3", false, true)));
+          column.setSearch(new DataTablesInput.Search("product3", SearchMode.EXACT_MATCH)));
 
         output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT3);
@@ -195,7 +196,7 @@ public class ProductRepositoryTest {
     public void booleanAttribute() {
         DataTablesInput input = getDefaultInput();
         input.getColumn("isEnabled").ifPresent(column ->
-                column.setSearch(new DataTablesInput.Search("true", false)));
+                column.setSearch(new DataTablesInput.Search("true")));
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT1, Product.PRODUCT2);
@@ -225,7 +226,7 @@ public class ProductRepositoryTest {
     public void subDocument() {
         DataTablesInput input = getDefaultInput();
         input.getColumn("characteristics.key").ifPresent(column ->
-                column.setSearch(new DataTablesInput.Search("key1", false)));
+                column.setSearch(new DataTablesInput.Search("key1")));
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
         assertThat(output.getData()).containsOnly(Product.PRODUCT1, Product.PRODUCT2);
@@ -262,7 +263,7 @@ public class ProductRepositoryTest {
     public void columnNotSearchable() {
         DataTablesInput input = getDefaultInput();
         input.getColumn("label").ifPresent(column -> {
-            column.setSearch(new DataTablesInput.Search(" PROduct3  ", false));
+            column.setSearch(new DataTablesInput.Search(" PROduct3  "));
             column.setSearchable(false);
         });
 
@@ -274,7 +275,7 @@ public class ProductRepositoryTest {
     public void columnSearchableIndependently() {
         DataTablesInput input = getDefaultInput();
         input.getColumn("label").ifPresent(column -> {
-            column.setSearch(new DataTablesInput.Search(" product3  ", false));
+            column.setSearch(new DataTablesInput.Search(" product3  "));
             column.setSearchable(false);
             column.setSearchableIndependently(true);
         });
@@ -297,7 +298,7 @@ public class ProductRepositoryTest {
     @Test
     public void multipleCriteria() {
         DataTablesInput input = getDefaultInput();
-        input.setSearch(new DataTablesInput.Search("product3", false));
+        input.setSearch(new DataTablesInput.Search("product3"));
 
         DataTablesOutput<Product> output = productRepository.findAll(input);
         assertThat(output.getError()).isNull();

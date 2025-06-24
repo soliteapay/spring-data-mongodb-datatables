@@ -99,12 +99,13 @@ public final class DataTablesCriteria {
 
     private static Criteria createCriteria(DataTablesInput.Column column, DataTablesInput.Search search) {
         String searchValue = search.getValue();
-        if (search.isRegex()) {
+        switch (search.getSearchMode()) {
+          case REGEX:
             return where(column.getData()).regex(searchValue, "i");
-        } else if (search.isExactMatch()) {
+          case EXACT_MATCH:
             return where(column.getData()).is(searchValue);
-        } else {
-            return where(column.getData()).regex("^"+searchValue.trim());   // can use index!
+          default:
+            return where(column.getData()).regex("^" + searchValue.trim());   // can use index!
         }
     }
 

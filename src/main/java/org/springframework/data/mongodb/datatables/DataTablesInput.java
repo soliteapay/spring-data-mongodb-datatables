@@ -127,26 +127,31 @@ public class DataTablesInput {
         private String value;
 
         /**
-         * true if the global filter should be treated as a regular expression for advanced searching,
-         * false otherwise. Note that normally server-side processing scripts will not perform regular
-         * expression searching for performance reasons on large data sets, but it is technically possible
-         * and at the discretion of your script.
+         * Set how {@link #value} will be searched for
          */
-        private boolean regex;
+        @NotNull
+        private SearchMode searchMode = SearchMode.PREFIX;
 
-        /**
-         * Set to {@code true} to use an equals operator when searching for {@link #value}.
-         * Otherwise, a "prefix" regex that starts with a caret (^) will be used, e.g. {@code ^value}.
-         * Ignored if {@link #regex} is set to {@code true}.
-         */
-        private boolean exactMatch = false;
-
-        public Search(@NotNull String value, boolean regex) {
+        public Search(@NotNull String value) {
             this.value = value;
-            this.regex = regex;
         }
 
         Search() {}
+
+        public enum SearchMode {
+            /**
+             * Search using a prefix regex starting with a caret (^), i.e. "^value"
+             */
+            PREFIX,
+            /**
+             * Search using a regex operator
+             */
+            REGEX,
+            /**
+             * Search using an equals operator
+             */
+            EXACT_MATCH
+        }
     }
 
     @Data
