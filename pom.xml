@@ -5,7 +5,7 @@
 
     <groupId>com.soliteapay</groupId>
     <artifactId>spring-data-mongodb-datatables</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 
     <name>Spring Data MongoDB for DataTables</name>
     <description>Spring Data MongoDB extension to work with the great jQuery plug-in DataTables (http://datatables.net/)</description>
@@ -47,7 +47,7 @@
     </scm>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>21</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <source.encoding>UTF-8</source.encoding>
@@ -58,7 +58,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.4.13</version>
+                <version>3.5.9</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -74,8 +74,7 @@
 
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>3.12.10</version>
+            <artifactId>mongodb-driver-sync</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -90,8 +89,8 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
         </dependency>
 
         <!-- Test -->
@@ -126,11 +125,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>3.14.1</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                     <encoding>${source.encoding}</encoding>
+                    <parameters>true</parameters> <!-- https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-6.1-Release-Notes#parameter-name-retention -->
                 </configuration>
             </plugin>
             <plugin>
