@@ -5,7 +5,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactoryBean;
 import org.springframework.data.repository.core.RepositoryMetadata;
-import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 
 import java.io.Serializable;
 
@@ -17,7 +16,7 @@ public final class DataTablesRepositoryFactoryBean<R extends MongoRepository<T, 
     }
 
     @Override
-    protected RepositoryFactorySupport getFactoryInstance(MongoOperations operations) {
+    protected MongoRepositoryFactory getFactoryInstance(MongoOperations operations) {
         return new DataTablesRepositoryFactory(operations);
     }
 
